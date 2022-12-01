@@ -1,5 +1,6 @@
 package io.mxk.services;
 
+import io.mxk.exceptions.InsufficientFundsException;
 import io.mxk.exceptions.InvalidOperationAmountException;
 import io.mxk.models.Operation;
 import io.mxk.repositories.AccountRepository;
@@ -27,6 +28,19 @@ public class RepositoryBasedAccountService implements AccountService{
                         LocalDateTime.now(clock),
                         amount,
                         getBalance().add(amount)
+                )
+        );
+    }
+
+    @Override
+    public void withdraw(BigDecimal amount) throws InsufficientFundsException, InvalidOperationAmountException {
+        if(amount.signum() < 0){throw new InvalidOperationAmountException("Withdrawal amount has to be positive");}
+        if(getBalance().compareTo(amount) < 0){throw new InsufficientFundsException("Not enough funds to perform withdrawal");}
+        repository.create(
+                Operation.getWithdrawOperation(
+                        LocalDateTime.now(clock),
+                        amount,
+                        getBalance().subtract(amount)
                 )
         );
     }

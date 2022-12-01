@@ -17,6 +17,13 @@ public class OperationFixtures {
                     new BigDecimal(80)
             );
 
+    public static final Operation sampleWithdrawOperation =
+            Operation.getWithdrawOperation(
+                    OperationDate,
+                    new BigDecimal(10),
+                    new BigDecimal(60)
+            );
+
     public static final Operation sampleFirstDeposit =
             Operation.getDepositOperation(
                     OperationDate,
@@ -30,5 +37,12 @@ public class OperationFixtures {
                     new BigDecimal(10),
 
                     new BigDecimal(70)
+            );
+
+    public static final Operation sampleLastOperationWithLowBalance =
+            Operation.getWithdrawOperation(
+                    OperationDate,
+                    new BigDecimal(10),
+                    new BigDecimal(0)
             );
 }
