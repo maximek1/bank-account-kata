@@ -1,5 +1,6 @@
 package io.mxk.services;
 
+import io.mxk.exceptions.InsufficientFundsException;
 import io.mxk.exceptions.InvalidOperationAmountException;
 import io.mxk.repositories.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +60,31 @@ public class RepositoryBasedAccountServiceTest {
     }
 
     @Test
+    void shouldPerformWithdrawWithPreviousOperation(){
+        when(repository.findMostRecent()).thenReturn(Optional.of(sampleLastOperation));
+
+        assertDoesNotThrow(() -> accountService.withdraw(
+                new BigDecimal(10))
+        );
+
+        verify(repository, times(2)).findMostRecent();
+        verify(repository).create(sampleWithdrawOperation);
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenWithdrawingWithLowBalance(){
+        when(repository.findMostRecent()).thenReturn(Optional.of(sampleLastOperationWithLowBalance));
+
+        assertThrows(InsufficientFundsException.class, () -> accountService.withdraw(
+                new BigDecimal(10))
+        );
+
+        verify(repository).findMostRecent();
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
     void shouldThrowExceptionWhenDepositWithInvalidAmount(){
         assertThrows(InvalidOperationAmountException.class, () -> accountService.deposit(
                 new BigDecimal(-10))
@@ -66,4 +92,14 @@ public class RepositoryBasedAccountServiceTest {
 
         verifyNoInteractions(repository);
     }
+
+    @Test
+    void shouldThrowExceptionWhenWithdrawingWithInvalidAmount(){
+        assertThrows(InvalidOperationAmountException.class, () -> accountService.withdraw(
+                new BigDecimal(-10))
+        );
+
+        verifyNoInteractions(repository);
+    }
+
 }
