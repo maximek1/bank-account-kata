@@ -4,20 +4,30 @@ import io.mxk.exceptions.InsufficientFundsException;
 import io.mxk.exceptions.InvalidOperationAmountException;
 import io.mxk.models.Operation;
 import io.mxk.repositories.AccountRepository;
+import io.mxk.utils.StatementPrinter;
 
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
 
-public class RepositoryBasedAccountService implements AccountService{
+public class RepositoryBasedAccountService implements AccountService {
 
     private final AccountRepository repository;
 
+    private final StatementPrinter printer;
+
     private final Clock clock;
 
-    public RepositoryBasedAccountService(AccountRepository repository, Clock clock) {
+    RepositoryBasedAccountService(AccountRepository repository, StatementPrinter printer, Clock clock) {
         this.repository = repository;
+        this.printer = printer;
         this.clock = clock;
+    }
+
+    public RepositoryBasedAccountService(AccountRepository repository, StatementPrinter printer) {
+        this.repository = repository;
+        this.printer = printer;
+        this.clock = Clock.systemDefaultZone();
     }
 
     @Override
@@ -45,6 +55,11 @@ public class RepositoryBasedAccountService implements AccountService{
         );
     }
 
+    @Override
+    public void printStatement() {
+        printer.printStatement(repository.findAll());
+    }
+
     private BigDecimal getBalance() {
         return repository
                 .findMostRecent()
@@ -52,3 +67,4 @@ public class RepositoryBasedAccountService implements AccountService{
                 .orElse(BigDecimal.ZERO);
     }
 }
+

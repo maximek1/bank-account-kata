@@ -3,6 +3,7 @@ package io.mxk.services;
 import io.mxk.exceptions.InsufficientFundsException;
 import io.mxk.exceptions.InvalidOperationAmountException;
 import io.mxk.repositories.AccountRepository;
+import io.mxk.utils.StatementPrinter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 
 import static io.mxk.fixtures.OperationFixtures.*;
@@ -25,6 +27,9 @@ public class RepositoryBasedAccountServiceTest {
     @Mock
     private AccountRepository repository;
 
+    @Mock
+    private StatementPrinter printer;
+
     private AccountService accountService;
 
     @BeforeEach
@@ -33,7 +38,7 @@ public class RepositoryBasedAccountServiceTest {
                 OperationDate.atZone(ZoneId.systemDefault()).toInstant(),
                 ZoneId.systemDefault());
 
-        accountService = new RepositoryBasedAccountService(repository, clock);
+        accountService = new RepositoryBasedAccountService(repository, printer, clock);
 
     }
 
@@ -69,6 +74,17 @@ public class RepositoryBasedAccountServiceTest {
 
         verify(repository, times(2)).findMostRecent();
         verify(repository).create(sampleWithdrawOperation);
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void shouldPrintStatement(){
+        when(repository.findAll()).thenReturn(List.of(sampleLastOperation));
+
+        accountService.printStatement();
+
+        verify(repository).findAll();
+        verify(printer).printStatement(List.of(sampleLastOperation));
         verifyNoMoreInteractions(repository);
     }
 

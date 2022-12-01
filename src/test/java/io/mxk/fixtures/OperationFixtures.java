@@ -45,4 +45,8 @@ public class OperationFixtures {
                     new BigDecimal(10),
                     new BigDecimal(0)
             );
+
+    public static final String sampleDepositConsoleOutput = String.format("%s%25s%15s%n", "DEPOSIT", "01-01-2022 00:00:00", "10,00");
+    public static final String sampleWithdrawConsoleOutput = String.format("%s%25s%15s%n", "WITHDRAWAL", "01-01-2022 00:00:00", "-10,00");
+    public static final String sampleLastOperationConsoleOutput = String.format("%s%25s%15s%n", "WITHDRAWAL", "01-01-2022 00:00:00", "-10,00");
 }
