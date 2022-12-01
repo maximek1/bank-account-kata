@@ -11,4 +11,5 @@ public interface AccountService {
 
     void withdraw(BigDecimal amount) throws InsufficientFundsException, InvalidOperationAmountException;
 
+    void printStatement();
 }
